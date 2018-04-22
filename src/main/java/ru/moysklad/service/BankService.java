@@ -7,11 +7,32 @@ import javax.annotation.Resource;
 public class BankService implements IBankService{
 
     public enum ServiceResponse {
-        outOfMoney,
-        noSuchId,
-        idExists,
-        ok,
-        error
+        outOfMoney {
+            @Override
+            public String message() {
+                return "There is no money!";
+            }
+        },
+        noSuchId {
+            @Override
+            public String message() {
+                return "There is no such id!";
+            }
+        },
+        idExists {
+            @Override
+            public String message() {
+                return "Such id already exist!";
+            }
+        },
+        ok {
+            @Override
+            public String message() {
+                return "Success!";
+            }
+        };
+
+        public abstract String message();
     }
 
     @Resource
@@ -22,7 +43,8 @@ public class BankService implements IBankService{
 
     public ServiceResponse saveAccount(int id) {
         HibernateBankAccount hBankAccount = (HibernateBankAccount) bankAccountDAO.getBankAccount(id);
-        if (hBankAccount != null) {
+        if (hBankAccount == null) {
+            hBankAccount = new HibernateBankAccount();
             hBankAccount.setId(id);
             hBankAccount.setSum(0);
             bankAccountDAO.save(hBankAccount);
@@ -34,31 +56,24 @@ public class BankService implements IBankService{
     public ServiceResponse updateSum(int id, long sum, boolean isDeposit) {
         HibernateBankAccount hBankAccount = (HibernateBankAccount) bankAccountDAO.getBankAccount(id);
 
-        if (hBankAccount != null) {
+        if (hBankAccount == null) {
             return ServiceResponse.noSuchId;
         }
 
         sum = isDeposit ? sum : -sum;
-        if (hBankAccount.getSum() + sum < 0) {
+        long newAccountSum = hBankAccount.getSum() + sum;
+        if (newAccountSum < 0) {
             return ServiceResponse.outOfMoney;
         }
+        hBankAccount.setSum(newAccountSum);
+        bankAccountDAO.save(hBankAccount);
 
-        if (hBankAccount != null) {
-            HibernateBankOpertaion hBankOpertaion = new HibernateBankOpertaion();
-            hBankOpertaion.setAccount_id(id);
-            if (!isDeposit) {
-                sum = - sum;
-            }
-            hBankOpertaion.setSum(sum);
-            bankOperationDAO.save(hBankOpertaion);
 
-            sum = hBankAccount.getSum() + sum;
-            hBankAccount.setSum(sum);
-            bankAccountDAO.save(hBankAccount);
-            return ServiceResponse.ok;
-        }
-
-        return ServiceResponse.error;
+        HibernateBankOpertaion hBankOpertaion = new HibernateBankOpertaion();
+        hBankOpertaion.setAccount_id(id);
+        hBankOpertaion.setSum(sum);
+        bankOperationDAO.save(hBankOpertaion);
+        return ServiceResponse.ok;
     }
 
     public String getAccountBalance(int id) {
@@ -66,6 +81,6 @@ public class BankService implements IBankService{
         if (bankAccount != null) {
             return String.valueOf(bankAccount.getSum());
         }
-        return "There is no such account";
+        return ServiceResponse.noSuchId.message();
     }
 }

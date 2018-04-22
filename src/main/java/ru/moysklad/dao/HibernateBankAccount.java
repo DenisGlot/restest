@@ -11,7 +11,6 @@ public class HibernateBankAccount implements IBankAccount {
 
     @Override
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     public int getId() {
         return id;
     }

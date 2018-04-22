@@ -1,38 +1,56 @@
 package ru.moysklad.rest;
 
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.test.framework.AppDescriptor;
+import com.sun.jersey.test.framework.WebAppDescriptor;
+import org.glassfish.jersey.servlet.ServletContainer;
+import com.sun.jersey.test.framework.JerseyTest;;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.request.RequestContextListener;
 
-import javax.ws.rs.core.Application;
+import java.net.URISyntaxException;
+
 
 public class RestestTest extends JerseyTest{
 
     @Override
-    protected Application configure() {
-        return new ResourceConfig(Restest.class);
+    public AppDescriptor configure() {
+        return new WebAppDescriptor.Builder("ru.moysklad.rest")
+                .contextParam("contextConfigLocation", "classpath:/spring-context.xml")
+                .contextPath("/").servletClass(ServletContainer.class)
+                .contextListenerClass(ContextLoaderListener.class)
+                .requestListenerClass(RequestContextListener.class)
+                .build();
     }
 
     @Test
-    public void createCostumerTest() {
-        target("bankaccount/99999").request();
-        String response = target("bankaccount/99999/balance").request().get(String.class);
-        Assert.assertTrue("0".equals(response));
+    public void createCostumerTest() throws URISyntaxException {
+        WebResource webResource = resource();
+        String response = webResource.path("/bankaccount/99999/").post(String.class);
+        Assert.assertTrue("Success!".equals(response));
     }
 
     @Test
     public void depositCustomerTest() {
-        target("bankaccount/99999/deposit/100").request();
-        String response = target("bankaccount/99999/balance").request().get(String.class);
-        Assert.assertTrue("100".equals(response));
+        WebResource webResource = resource();
+        String response = webResource.path("bankaccount/99999/deposit/100").put(String.class);
+        Assert.assertTrue("Success!".equals(response));
     }
 
     @Test
     public void withdrawCustomerTest() {
-        target("bankaccount/99999/withdraw/1").request();
-        String response = target("bankaccount/99999/balance").request().get(String.class);
-        Assert.assertTrue("99".equals(response));
+        WebResource webResource = resource();
+        String response = webResource.path("bankaccount/99999/withdraw/50").put(String.class);
+        Assert.assertTrue("Success!".equals(response));
+    }
+
+    @Test
+    public void getBalanceTest() {
+        WebResource webResource = resource();
+        String response = webResource.path("bankaccount/99999/balance").get(String.class);
+        Assert.assertTrue("50".equals(response));
     }
 
 }

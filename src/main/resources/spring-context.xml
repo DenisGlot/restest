@@ -11,6 +11,8 @@
         <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
 
+    <context:component-scan base-package="ru.moysklad.rest"/>
+
     <context:annotation-config />
 
     <bean id="sessionFactory"

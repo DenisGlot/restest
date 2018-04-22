@@ -1,5 +1,7 @@
 package ru.moysklad.rest;
 
+import org.springframework.stereotype.Component;
+
 import ru.moysklad.service.IBankService;
 import ru.moysklad.util.BankUtils;
 
@@ -10,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 
 import static ru.moysklad.service.BankService.ServiceResponse;
 
+@Component
 @Path("/bankaccount")
 public class Restest {
 
@@ -23,39 +26,40 @@ public class Restest {
         if (BankUtils.validateAccount(id)) {
             int intId = Integer.parseInt(id);
             ServiceResponse serviceResponse = bankService.saveAccount(intId);
-            if (serviceResponse.equals(ServiceResponse.idExists)) {
-                return "Such id already exist";
-            } else if (serviceResponse.equals(ServiceResponse.ok)) {
-                return "Success!";
-            } else {
-                return "Error! Please contact us!";
-            }
+            return serviceResponse.message();
         }
         return "Your id is not valid";
     }
 
     @PUT
     @Path("/{id}/deposit/{sum}")
-    public void depositCustomer(@PathParam("id") String id, @PathParam("sum") String sum) {
+    @Produces(MediaType.TEXT_PLAIN)
+    public String depositCustomer(@PathParam("id") String id, @PathParam("sum") String sum) {
         if (BankUtils.validateAccount(id) && BankUtils.validateSum(sum)) {
             int intId = Integer.parseInt(id);
             long longSum = Long.parseLong(sum);
-            bankService.updateSum(intId, longSum, true);
+            ServiceResponse serviceResponse = bankService.updateSum(intId, longSum, true);
+            return serviceResponse.message();
         }
+        return "Your id is not valid";
     }
 
     @PUT
     @Path("/{id}/withdraw/{sum}")
-    public void withdrawCustomer(@PathParam("id") String id, @PathParam("sum") String sum) {
+    @Produces(MediaType.TEXT_PLAIN)
+    public String withdrawCustomer(@PathParam("id") String id, @PathParam("sum") String sum) {
         if (BankUtils.validateAccount(id) && BankUtils.validateSum(sum)) {
             int intId = Integer.parseInt(id);
             long longSum = Long.parseLong(sum);
-            bankService.updateSum(intId, longSum, false);
+            ServiceResponse serviceResponse = bankService.updateSum(intId, longSum, false);
+            return serviceResponse.message();
         }
+        return "Your id is not valid";
     }
 
     @GET
     @Path("/{id}/balance")
+    @Produces(MediaType.TEXT_PLAIN)
     public String getBalance(@PathParam("id") String id) {
         if (BankUtils.validateAccount(id)) {
             int intId = Integer.parseInt(id);

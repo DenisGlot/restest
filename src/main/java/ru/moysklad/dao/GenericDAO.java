@@ -5,6 +5,7 @@ import java.lang.reflect.ParameterizedType;
 
 import javax.annotation.Resource;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -27,19 +28,25 @@ public abstract class GenericDAO<T, ID extends Serializable>{
 
     @SuppressWarnings("unchecked")
     public T findById(ID id) {
-        return (T) sessionFactory.getCurrentSession().get(getPersistentClass(), id);
+        return (T) getSession().get(getPersistentClass(), id);
     }
 
     public void makePersistent(T entity) {
-        sessionFactory.getCurrentSession().persist(entity);
+        getSession().merge(entity);
     }
 
     public void makeTransient(T entity) {
-        sessionFactory.getCurrentSession().delete(entity);
+        getSession().delete(entity);
     }
 
     protected Session getSession() {
-        return sessionFactory.getCurrentSession();
+        Session session;
+        try {
+            session = sessionFactory.getCurrentSession();
+        } catch (HibernateException e) {
+            session = sessionFactory.openSession();
+        }
+        return session;
     }
 
 }
