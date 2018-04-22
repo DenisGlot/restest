@@ -11,8 +11,7 @@ public class HibernateBankAccount implements IBankAccount {
 
     @Override
     @Id
-    @SequenceGenerator(name="nextAccountId",sequenceName="account_id_seq", allocationSize=1)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="nextAccountId")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public int getId() {
         return id;
     }

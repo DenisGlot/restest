@@ -8,6 +8,8 @@ import javax.annotation.Resource;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
+import static ru.moysklad.service.BankService.ServiceResponse;
+
 @Path("/bankaccount")
 public class Restest {
 
@@ -16,17 +18,24 @@ public class Restest {
 
     @POST
     @Path("/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void createCustomer(@PathParam("id") String id) {
+    @Produces(MediaType.TEXT_PLAIN)
+    public String createCustomer(@PathParam("id") String id) {
         if (BankUtils.validateAccount(id)) {
             int intId = Integer.parseInt(id);
-            bankService.saveAccount(intId);
+            ServiceResponse serviceResponse = bankService.saveAccount(intId);
+            if (serviceResponse.equals(ServiceResponse.idExists)) {
+                return "Such id already exist";
+            } else if (serviceResponse.equals(ServiceResponse.ok)) {
+                return "Success!";
+            } else {
+                return "Error! Please contact us!";
+            }
         }
+        return "Your id is not valid";
     }
 
     @PUT
-    @Path("/{id}/deposit{sum}")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{id}/deposit/{sum}")
     public void depositCustomer(@PathParam("id") String id, @PathParam("sum") String sum) {
         if (BankUtils.validateAccount(id) && BankUtils.validateSum(sum)) {
             int intId = Integer.parseInt(id);
@@ -37,7 +46,6 @@ public class Restest {
 
     @PUT
     @Path("/{id}/withdraw/{sum}")
-    @Consumes(MediaType.APPLICATION_JSON)
     public void withdrawCustomer(@PathParam("id") String id, @PathParam("sum") String sum) {
         if (BankUtils.validateAccount(id) && BankUtils.validateSum(sum)) {
             int intId = Integer.parseInt(id);
@@ -54,6 +62,12 @@ public class Restest {
             return bankService.getAccountBalance(intId);
         }
         return "There is no such account";
+    }
+
+    @GET
+    @Path("/error404")
+    public String get404() {
+        return "Sorry, there is no such page!";
     }
 
 }

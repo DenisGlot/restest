@@ -24,7 +24,7 @@ public class HibernateBankOpertaion implements IBankOpertaion {
 
     @Override
     @ManyToOne(targetEntity=HibernateBankAccount.class, fetch=FetchType.LAZY)
-    @JoinColumn(name="id")
+    @JoinColumn(name="account_id")
     public int getAccount_id() {
         return account_id;
     }

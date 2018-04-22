@@ -9,7 +9,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class RestestSpringStartup {
 
     private static final Logger logger = LoggerFactory.getLogger(RestestSpringStartup.class);
-    private static final String CONTEXT_LOCATION = "/webapp-context-r.xml";
+    private static final String CONTEXT_LOCATION = "/restest-context.xml";
 
     public static void main(String[] p_args) throws Exception {
         try {

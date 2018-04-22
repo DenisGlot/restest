@@ -21,9 +21,10 @@ public class BankService implements IBankService{
     private IBankOperationDAO bankOperationDAO;
 
     public ServiceResponse saveAccount(int id) {
-        HibernateBankAccount hBankAccount = new HibernateBankAccount();
+        HibernateBankAccount hBankAccount = (HibernateBankAccount) bankAccountDAO.getBankAccount(id);
         if (hBankAccount != null) {
             hBankAccount.setId(id);
+            hBankAccount.setSum(0);
             bankAccountDAO.save(hBankAccount);
             return ServiceResponse.ok;
         }

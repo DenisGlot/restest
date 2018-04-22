@@ -1,0 +1,14 @@
+CREATE TABLE account (
+    id integer NOT NULL,
+    sum bigint NOT NULL,
+    CONSTRAINT account_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE bank_operation (
+    id serial NOT NULL,
+    account_id integer NOT NULL,
+    sum bigint NOT NULL,
+    CONSTRAINT bank_operation_pkey PRIMARY KEY (id),
+    CONSTRAINT bank_operation_account_id_fkey FOREIGN KEY (account_id) REFERENCES account(id)
+);
+
